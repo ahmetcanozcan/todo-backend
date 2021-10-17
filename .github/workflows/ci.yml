@@ -1,13 +1,12 @@
 on:
   push:
     branches:
-    - master
+      - master
 
-  
 name: Test
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: 'ubuntu-latest'
     steps:
       - name: Install Go
         uses: actions/setup-go@v2
