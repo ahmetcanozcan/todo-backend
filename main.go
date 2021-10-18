@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -25,16 +26,23 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8901"
 	}
-
+	ch := handlers.CORS(
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
+		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"}),
+	)
 	addr := ":" + port
 
-	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{"*"})
-	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+	s := http.Server{
+		Addr:         addr,
+		Handler:      ch(router),
+		ErrorLog:     log.Default(),
+		ReadTimeout:  5 * time.Second,   // max time to read request from the client
+		WriteTimeout: 10 * time.Second,  // max time to write response to the client
+		IdleTimeout:  120 * time.Second, // max time for connections using TCP Keep-Alive
+	}
 
-	log.Println("Server is listening on " + addr)
-	log.Fatal(http.ListenAndServe(addr, handlers.CORS(headersOk, originsOk, methodsOk)(router)))
-
+	log.Fatal(s.ListenAndServe())
 }
