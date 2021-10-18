@@ -38,7 +38,7 @@ func main() {
 	s := http.Server{
 		Addr:         addr,
 		Handler:      ch(router),
-		ErrorLog:     log.Default(),
+		ErrorLog:     log.New(os.Stderr, "", log.LstdFlags),
 		ReadTimeout:  5 * time.Second,   // max time to read request from the client
 		WriteTimeout: 10 * time.Second,  // max time to write response to the client
 		IdleTimeout:  120 * time.Second, // max time for connections using TCP Keep-Alive
