@@ -23,10 +23,12 @@ func main() {
 	router.Methods("GET").Path("/todos").HandlerFunc(controller.GetTodos)
 	router.Methods("POST").Path("/todos").HandlerFunc(controller.AddTodo)
 
-	addr := os.Getenv("SERVER_ADDR")
-	if addr == "" {
-		addr = ":8080"
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
+
+	addr := ":" + port
 
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
 	originsOk := handlers.AllowedOrigins([]string{"*"})
