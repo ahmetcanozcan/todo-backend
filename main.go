@@ -4,8 +4,11 @@ import (
 	"app/controller"
 	"app/repository"
 	"app/service"
+	"log"
 	"net/http"
+	"os"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -20,9 +23,16 @@ func main() {
 	router.Methods("GET").Path("/todos").HandlerFunc(controller.GetTodos)
 	router.Methods("POST").Path("/todos").HandlerFunc(controller.AddTodo)
 
-	server := http.Server{
-		Handler: router,
-		Addr:    ":8000",
+	addr := os.Getenv("SERVER_ADDR")
+	if addr == "" {
+		addr = ":8080"
 	}
-	server.ListenAndServe()
+
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
+	originsOk := handlers.AllowedOrigins([]string{"*"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+
+	log.Println("Server is listening on " + addr)
+	log.Fatal(http.ListenAndServe(addr, handlers.CORS(headersOk, originsOk, methodsOk)(router)))
+
 }
